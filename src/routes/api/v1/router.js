@@ -2,7 +2,7 @@
  * API version 1 routes.
  *
  * @author Ellinor Henriksson
- * @version 2.0.0
+ * @version 1.0.0
  */
 
 import express from 'express'

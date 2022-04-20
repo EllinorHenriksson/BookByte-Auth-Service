@@ -1,17 +1,15 @@
 /**
- * Authentication/authorization routes.
+ * Auth routes.
  *
  * @author Ellinor Henriksson
- * @version 2.0.0
+ * @version 1.0.0
  */
 
 import express from 'express'
-import { AuthController } from '../../../controllers/api/auth-controller.js'
+import { router as accountRouter } from './account-router.js'
+import { router as userRouter } from './user-router.js'
 
 export const router = express.Router()
 
-const controller = new AuthController()
-
-router.post('/login', (req, res, next) => controller.login(req, res, next))
-
-router.post('/register', (req, res, next) => controller.register(req, res, next))
+router.use('/', accountRouter)
+router.use('/users', userRouter)

@@ -1,5 +1,5 @@
 /**
- * Module for the AuthController.
+ * Module for the AccountController.
  *
  * @author Ellinor Henriksson
  * @version 1.0.0
@@ -12,7 +12,7 @@ import { User } from '../../models/user.js'
 /**
  * Encapsulates a controller.
  */
-export class AuthController {
+export class AccountController {
   /**
    * Authenticates a user.
    *
@@ -28,7 +28,8 @@ export class AuthController {
         sub: user.username,
         given_name: user.firstName,
         family_name: user.lastName,
-        email: user.email
+        email: user.email,
+        id: user.id
       }
 
       const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64')
@@ -40,7 +41,6 @@ export class AuthController {
       })
 
       res
-        .status(200)
         .json({
           access_token: accessToken
         })
