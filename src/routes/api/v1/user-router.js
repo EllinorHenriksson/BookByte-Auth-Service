@@ -37,11 +37,11 @@ const authenticateJWT = (req, res, next) => {
 
     const payload = jwt.verify(token, publicKey)
 
-    req.authenticatedUserId = payload.id
+    req.authenticatedUserId = payload.sub
 
     next()
   } catch (err) {
-    const error = createError(404, 'Access token invalid or not provided.')
+    const error = createError(401, 'Access token invalid or not provided.')
     error.cause = err
     next(error)
   }
@@ -73,6 +73,18 @@ router.param('id', (req, res, next, id) => controller.loadRequestedUser(req, res
 router.get('/:id',
   authenticateJWT,
   (req, res, next) => controller.find(req, res, next)
+)
+
+router.patch('/:id',
+  authenticateJWT,
+  hasPermission,
+  (req, res, next) => controller.partialUpdate(req, res, next)
+)
+
+router.put('/:id',
+  authenticateJWT,
+  hasPermission,
+  (req, res, next) => controller.fullUpdate(req, res, next)
 )
 
 router.delete('/:id',

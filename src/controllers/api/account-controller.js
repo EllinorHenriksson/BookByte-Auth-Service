@@ -25,11 +25,11 @@ export class AccountController {
       const user = await User.authenticate(req.body.username, req.body.password)
 
       const payload = {
-        sub: user.username,
-        given_name: user.firstName,
-        family_name: user.lastName,
-        email: user.email,
-        id: user.id
+        sub: user.id,
+        preferred_username: user.username,
+        given_name: user.givenName,
+        family_name: user.familyName,
+        email: user.email
       }
 
       const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64')
@@ -46,7 +46,7 @@ export class AccountController {
         })
     } catch (error) {
       // Authentication failed.
-      const err = createError(401, 'Credentials invalid or not provided.')
+      const err = createError(401)
       err.cause = error
 
       next(err)
@@ -65,8 +65,8 @@ export class AccountController {
       const user = new User({
         username: req.body.username,
         password: req.body.password,
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
+        givenName: req.body.givenName,
+        familyName: req.body.familyName,
         email: req.body.email
       })
 
@@ -80,7 +80,7 @@ export class AccountController {
 
       if (err.code === 11000) {
         // Duplicated keys.
-        err = createError(409, 'The username and/or email address is already registered.')
+        err = createError(409, 'The username and/or email address already registered.')
         err.cause = error
       } else if (error.name === 'ValidationError') {
         // Validation error(s).

@@ -13,14 +13,14 @@ const { isEmail } = validator
 
 // Create a schema.
 const schema = new mongoose.Schema({
-  firstName: {
+  givenName: {
     type: String,
-    required: [true, 'First name is required.'],
+    required: [true, 'Given name is required.'],
     trim: true
   },
-  lastName: {
+  familyName: {
     type: String,
-    required: [true, 'Last name is required.'],
+    required: [true, 'Family name is required.'],
     trim: true
   },
   email: {
