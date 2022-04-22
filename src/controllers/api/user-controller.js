@@ -23,9 +23,14 @@ export class UserController {
   async loadRequestedUser (req, res, next, id) {
     try {
       req.requestedUser = await User.findById(id)
+
+      if (!req.requestedUser) {
+        return next(createError(404, 'The requested resource was not found.'))
+      }
+
       next()
     } catch (error) {
-      next(createError(404, 'The requested resource was not found.'))
+      next(error)
     }
   }
 
