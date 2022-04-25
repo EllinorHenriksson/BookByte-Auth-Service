@@ -9,8 +9,8 @@ import createError from 'http-errors'
 import { User } from '../../models/user.js'
 
 /**
-* Encapsulates a controller.
-*/
+ * Encapsulates a controller.
+ */
 export class UserController {
   /**
    * Loads the requested user to the request object.
@@ -148,6 +148,7 @@ export class UserController {
    */
   async delete (req, res, next) {
     try {
+      // Remove user from books auth service
       await req.requestedUser.remove()
       res.status(204).end()
     } catch (error) {
