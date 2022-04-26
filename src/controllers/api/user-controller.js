@@ -148,7 +148,6 @@ export class UserController {
    */
   async delete (req, res, next) {
     try {
-      // Remove user from books auth service
       await req.requestedUser.remove()
       res.status(204).end()
     } catch (error) {
