@@ -7,42 +7,155 @@
 
 import createError from 'http-errors'
 import { User } from '../../models/user.js'
-
+import * as helper from '../../helper-modules/controller-helper.js'
 /**
  * Encapsulates a controller.
  */
 export class UserController {
   /**
-   * Loads the requested user to the request object.
+   * Registers a user.
    *
    * @param {object} req - Express request object.
    * @param {object} res - Express response object.
    * @param {Function} next - Express next middleware function.
-   * @param {string} id - The id of the user to load.
    */
-  async loadRequestedUser (req, res, next, id) {
+  async register (req, res, next) {
     try {
-      req.requestedUser = await User.findById(id)
+      const user = new User({
+        username: req.body.username,
+        password: req.body.password,
+        givenName: req.body.givenName,
+        familyName: req.body.familyName,
+        email: req.body.email
+      })
 
-      if (!req.requestedUser) {
-        return next(createError(404, 'The requested resource was not found.'))
+      await user.save()
+
+      res
+        .status(201)
+        .json({ id: user.id })
+    } catch (error) {
+      let err = error
+
+      if (err.code === 11000) {
+        // Duplicated keys.
+        err = createError(409, 'The username and/or email address already registered.')
+        err.cause = error
+      } else if (error.name === 'ValidationError') {
+        // Validation error(s).
+        err = createError(400, error.message)
+        err.cause = error
       }
 
-      next()
+      next(err)
+    }
+  }
+
+  /**
+   * Authenticates a user.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   * @param {Function} next - Express next middleware function.
+   */
+  async login (req, res, next) {
+    try {
+      const user = await User.authenticate(req.body.username, req.body.password)
+
+      // Create JWT token.
+      const jwtToken = helper.createJwtToken(user)
+
+      // Create refresh token.
+      const refreshToken = helper.createRefreshToken(user, req.ip)
+      await refreshToken.save()
+
+      // Set cookie with refresh token.
+      helper.setTokenCookie(res, refreshToken.token)
+
+      res
+        .json({
+          access_token: jwtToken
+        })
+    } catch (error) {
+      // Authentication failed.
+      const err = createError(401)
+      err.cause = error
+
+      next(err)
+    }
+  }
+
+  /**
+   * Creates a new refresh token (and JWT token).
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   * @param {Function} next - Express next middleware function.
+   */
+  async refresh (req, res, next) {
+    try {
+      // Check and retrieve refresh token.
+      const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
+
+      const user = refreshToken.user
+      console.log('User (id or object?): ', user)
+
+      // Create new refresh token and save it.
+      const newRefreshToken = helper.createRefreshToken(user, req.ip)
+      await newRefreshToken.save()
+
+      // Update old refresh token and save it.
+      refreshToken.revoked = Date.now()
+      refreshToken.revokedByIp = req.ip
+      refreshToken.replacedByToken = newRefreshToken.token
+      await refreshToken.save()
+
+      const jwtToken = helper.createJwtToken(user)
+
+      // Set cookie with refresh token.
+      helper.setTokenCookie(res, newRefreshToken.token)
+
+      res
+        .json({
+          access_token: jwtToken
+        })
     } catch (error) {
       next(error)
     }
   }
 
   /**
-   * Sends data for a specific user to the client.
+   * Revokes the refresh token so that the user logs out when the JWT expires.
    *
    * @param {object} req - Express request object.
    * @param {object} res - Express response object.
    * @param {Function} next - Express next middleware function.
    */
-  find (req, res, next) {
-    res.json(req.requestedUser)
+  async logout (req, res, next) {
+    // Check and retrieve refresh token.
+    const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
+
+    /*
+    if (!req.user.ownsToken(token) && req.user.role !== Role.Admin) {
+      return res.status(401).json({ message: 'Unauthorized' });
+  }
+
+    // Revoke token and save it.
+    refreshToken.revoked = Date.now()
+    refreshToken.revokedByIp = req.ip
+    await refreshToken.save()
+    */
+  }
+
+  /**
+   * Sends the user's account data back to the user.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   * @param {Function} next - Express next middleware function.
+   */
+  async account (req, res, next) {
+    res.json(req.authenticatedUser)
   }
 
   /**
@@ -75,12 +188,12 @@ export class UserController {
         }
 
         if (Object.keys(update).length > 0) {
-          await req.requestedUser.updateOne(update, { runValidators: true })
+          await req.authenticatedUser.updateOne(update, { runValidators: true })
         }
 
         if (req.body.password) {
-          req.requestedUser.password = req.body.password
-          await req.requestedUser.save()
+          req.authenticatedUser.password = req.body.password
+          await req.authenticatedUser.save()
         }
         res.status(204).end()
       }
@@ -113,13 +226,13 @@ export class UserController {
       if (req.body.password !== req.body.passwordRepeat) {
         next(createError(400, 'The new password was not repeated correctly.'))
       } else {
-        req.requestedUser.username = req.body.username
-        req.requestedUser.givenName = req.body.givenName
-        req.requestedUser.familyName = req.body.familyName
-        req.requestedUser.email = req.body.email
-        req.requestedUser.password = req.body.password
+        req.authenticatedUser.username = req.body.username
+        req.authenticatedUser.givenName = req.body.givenName
+        req.authenticatedUser.familyName = req.body.familyName
+        req.authenticatedUser.email = req.body.email
+        req.authenticatedUser.password = req.body.password
 
-        await req.requestedUser.save()
+        await req.authenticatedUser.save()
         res.status(204).end()
       }
     } catch (error) {
@@ -148,10 +261,21 @@ export class UserController {
    */
   async delete (req, res, next) {
     try {
-      await req.requestedUser.remove()
+      await req.authenticatedUser.remove()
       res.status(204).end()
     } catch (error) {
       next(error)
     }
+  }
+
+  /**
+   * Sends data for a specific user to the client.
+   *
+   * @param {object} req - Express request object.
+   * @param {object} res - Express response object.
+   * @param {Function} next - Express next middleware function.
+   */
+  findOne (req, res, next) {
+    res.json(req.requestedUser)
   }
 }
