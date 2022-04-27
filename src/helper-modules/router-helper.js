@@ -36,7 +36,7 @@ export async function authenticateJWT (req, res, next) {
     const [authenticationScheme, token] = req.headers.authorization?.split(' ')
 
     if (authenticationScheme !== 'Bearer') {
-      throw new Error('Invalid authentication scheme.')
+      throw new Error('Invalid authentication scheme')
     }
 
     const publicKey = Buffer.from(process.env.PUBLIC_KEY, 'base64')
@@ -47,7 +47,7 @@ export async function authenticateJWT (req, res, next) {
 
     next()
   } catch (err) {
-    const error = createError(401, 'Access token invalid or not provided.')
+    const error = createError(401, 'Invalid JWT token')
     error.cause = err
     next(error)
   }

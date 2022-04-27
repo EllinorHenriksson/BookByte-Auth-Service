@@ -12,10 +12,7 @@ import { RefreshToken } from '../models/refreshToken.js'
 export function createJwtToken (user) {
   const payload = {
     sub: user.id,
-    preferred_username: user.username,
-    given_name: user.givenName,
-    family_name: user.familyName,
-    email: user.email
+    preferred_username: user.username
   }
 
   const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64')
@@ -55,9 +52,9 @@ export async function getRefreshToken (token) {
   }
 
   // Retreive and check refresh token.
-  const refreshToken = await RefreshToken.findOne({ token })
+  const refreshToken = await RefreshToken.findOne({ token }).populate('user')
   if (!refreshToken || !refreshToken.isActive) {
-    throw createError(401, 'Invalid token')
+    throw createError(401, 'Invalid refresh token')
   }
   return refreshToken
 }

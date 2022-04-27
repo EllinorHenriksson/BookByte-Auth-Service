@@ -74,7 +74,8 @@ export class UserController {
 
       res
         .json({
-          access_token: jwtToken
+          access_token: jwtToken,
+          user_data: user
         })
     } catch (error) {
       // Authentication failed.
@@ -98,7 +99,6 @@ export class UserController {
       const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
 
       const user = refreshToken.user
-      console.log('User (id or object?): ', user)
 
       // Create new refresh token and save it.
       const newRefreshToken = helper.createRefreshToken(user, req.ip)
@@ -132,19 +132,23 @@ export class UserController {
    * @param {Function} next - Express next middleware function.
    */
   async logout (req, res, next) {
-    // Check and retrieve refresh token.
-    const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
+    try {
+      // Check and retrieve refresh token.
+      const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
 
-    /*
-    if (!req.user.ownsToken(token) && req.user.role !== Role.Admin) {
-      return res.status(401).json({ message: 'Unauthorized' });
-  }
+      if (refreshToken.user.id !== req.authenticatedUser.id) {
+        throw createError(401)
+      }
 
-    // Revoke token and save it.
-    refreshToken.revoked = Date.now()
-    refreshToken.revokedByIp = req.ip
-    await refreshToken.save()
-    */
+      // Revoke token and save it.
+      refreshToken.revoked = Date.now()
+      refreshToken.revokedByIp = req.ip
+      await refreshToken.save()
+
+      res.json({ message: 'Token revoked' })
+    } catch (error) {
+      next(error)
+    }
   }
 
   /**

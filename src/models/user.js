@@ -88,7 +88,7 @@ schema.statics.authenticate = async function (username, password) {
 
   // If no user found or password is wrong, throw an error.
   if (!(await bcrypt.compare(password, user?.password))) {
-    throw new Error('Invalid credentials.')
+    throw new Error('Invalid credentials')
   }
 
   // User found and password correct, return the user.
