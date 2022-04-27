@@ -8,6 +8,7 @@
 import createError from 'http-errors'
 import { User } from '../../models/user.js'
 import * as helper from '../../helper-modules/controller-helper.js'
+import { RefreshToken } from '../../models/refreshToken.js'
 /**
  * Encapsulates a controller.
  */
@@ -60,6 +61,13 @@ export class UserController {
    */
   async login (req, res, next) {
     try {
+      const token = req.cookies.refreshToken
+      if (token) {
+        const refreshToken = await RefreshToken.findOne({ token }).populate('user')
+        if (refreshToken && refreshToken.isActive) {
+          return res.redirect('refresh')
+        }
+      }
       const user = await User.authenticate(req.body.username, req.body.password)
 
       // Create JWT token.
