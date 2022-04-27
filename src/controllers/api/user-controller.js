@@ -70,8 +70,8 @@ export class UserController {
       }
       const user = await User.authenticate(req.body.username, req.body.password)
 
-      // Create JWT token.
-      const jwtToken = helper.createJwtToken(user)
+      // Create JWT.
+      const jwtToken = helper.createJwt(user)
 
       // Create refresh token.
       const refreshToken = helper.createRefreshToken(user, req.ip)
@@ -82,7 +82,7 @@ export class UserController {
 
       res
         .json({
-          access_token: jwtToken,
+          jwt: jwtToken,
           user_data: user
         })
     } catch (error) {
@@ -95,7 +95,7 @@ export class UserController {
   }
 
   /**
-   * Creates a new refresh token (and JWT token).
+   * Creates a new refresh token (and JWT).
    *
    * @param {object} req - Express request object.
    * @param {object} res - Express response object.
@@ -118,14 +118,14 @@ export class UserController {
       refreshToken.replacedByToken = newRefreshToken.token
       await refreshToken.save()
 
-      const jwtToken = helper.createJwtToken(user)
+      const jwtToken = helper.createJwt(user)
 
       // Set cookie with refresh token.
       helper.setTokenCookie(res, newRefreshToken.token)
 
       res
         .json({
-          access_token: jwtToken
+          jwt: jwtToken
         })
     } catch (error) {
       next(error)

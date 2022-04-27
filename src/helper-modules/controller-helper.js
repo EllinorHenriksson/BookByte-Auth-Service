@@ -4,12 +4,12 @@ import crypto from 'crypto'
 import { RefreshToken } from '../models/refreshToken.js'
 
 /**
- * Creates and returns a JWT token.
+ * Creates and returns a JWT.
  *
  * @param {object} user - The user resurce object to create the JWT for.
- * @returns {string} The JWT token.
+ * @returns {string} The JWT.
  */
-export function createJwtToken (user) {
+export function createJwt (user) {
   const payload = {
     sub: user.id,
     preferred_username: user.username
@@ -19,7 +19,7 @@ export function createJwtToken (user) {
 
   return jwt.sign(payload, privateKey, {
     algorithm: 'RS256',
-    expiresIn: process.env.ACCESS_TOKEN_LIFE
+    expiresIn: process.env.JWT_LIFE_LENGTH
   })
 }
 
