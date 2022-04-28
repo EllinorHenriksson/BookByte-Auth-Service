@@ -14,13 +14,9 @@ export async function loadRequestedUser (req, res, next, id) {
   try {
     req.requestedUser = await User.findById(id)
 
-    if (!req.requestedUser) {
-      return next(createError(404, 'The requested resource was not found.'))
-    }
-
     next()
   } catch (error) {
-    next(error)
+    next(createError(404, 'The requested resource was not found'))
   }
 }
 
@@ -45,9 +41,13 @@ export async function authenticateJWT (req, res, next) {
 
     req.authenticatedUser = await User.findById(payload.sub)
 
+    if (!req.authenticatedUser) {
+      throw new Error('User not in database')
+    }
+
     next()
   } catch (err) {
-    const error = createError(401, 'Invalid JWT')
+    const error = createError(401, 'JWT invalid or not provided')
     error.cause = err
     next(error)
   }

@@ -40,7 +40,7 @@ export class UserController {
 
       if (err.code === 11000) {
         // Duplicated keys.
-        err = createError(409, 'The username and/or email address already registered.')
+        err = createError(409, 'Username and/or email address already registered')
         err.cause = error
       } else if (error.name === 'ValidationError') {
         // Validation error(s).
@@ -87,7 +87,7 @@ export class UserController {
         })
     } catch (error) {
       // Authentication failed.
-      const err = createError(401)
+      const err = createError(401, 'Credentials invalid or not provided')
       err.cause = error
 
       next(err)
@@ -145,7 +145,7 @@ export class UserController {
       const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
 
       if (refreshToken.user.id !== req.authenticatedUser.id) {
-        throw createError(401)
+        throw createError(401, 'Invalid refresh token')
       }
 
       // Revoke token and save it.
@@ -153,7 +153,7 @@ export class UserController {
       refreshToken.revokedByIp = req.ip
       await refreshToken.save()
 
-      res.json({ message: 'Token revoked' })
+      res.json({ message: 'Refresh token revoked' })
     } catch (error) {
       next(error)
     }
@@ -180,9 +180,9 @@ export class UserController {
   async partialUpdate (req, res, next) {
     try {
       if (!req.body.username && !req.body.givenName && !req.body.familyName && !req.body.email && !req.body.password) {
-        next(createError(400, 'None of the requested data was provided.'))
+        next(createError(400, 'None of the requested data was provided'))
       } else if (req.body.password && (req.body.password !== req.body.passwordRepeat)) {
-        next(createError(400, 'The new password was not repeated correctly.'))
+        next(createError(400, 'The new password was not repeated correctly'))
       } else {
         const update = {}
 
@@ -214,7 +214,7 @@ export class UserController {
 
       if (err.code === 11000) {
         // Duplicated keys.
-        err = createError(409, 'Username and/or email already registered.')
+        err = createError(409, 'Username and/or email already registered')
         err.cause = error
       } else if (error.name === 'ValidationError') {
         // Validation error(s).
@@ -273,6 +273,7 @@ export class UserController {
    */
   async delete (req, res, next) {
     try {
+      await RefreshToken.deleteMany({ user: req.authenticatedUser._id })
       await req.authenticatedUser.remove()
       res.status(204).end()
     } catch (error) {

@@ -11,8 +11,7 @@ import { RefreshToken } from '../models/refreshToken.js'
  */
 export function createJwt (user) {
   const payload = {
-    sub: user.id,
-    preferred_username: user.username
+    sub: user.id
   }
 
   const privateKey = Buffer.from(process.env.PRIVATE_KEY, 'base64')
@@ -48,7 +47,7 @@ export function createRefreshToken (user, ipAddress) {
 export async function getRefreshToken (token) {
   // Check if cookie with refresh token is provided.
   if (!token) {
-    throw createError(400, 'Token is required')
+    throw createError(400, 'Refresh token not provided')
   }
 
   // Retreive and check refresh token.

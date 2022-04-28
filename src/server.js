@@ -32,7 +32,7 @@ try {
 
     if (req.app.get('env') !== 'development') {
       if (err.status === 500) {
-        err.message = 'An unexpected condition was encountered.'
+        err.message = 'An unexpected condition was encountered'
       }
       return res
         .status(err.status)
