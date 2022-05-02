@@ -125,7 +125,8 @@ export class UserController {
 
       res
         .json({
-          jwt: jwtToken
+          jwt: jwtToken,
+          user_data: user
         })
     } catch (error) {
       next(error)
