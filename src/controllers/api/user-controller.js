@@ -181,8 +181,6 @@ export class UserController {
     try {
       if (!req.body.username && !req.body.givenName && !req.body.familyName && !req.body.email && !req.body.password) {
         next(createError(400, 'None of the requested data was provided'))
-      } else if (req.body.password && (req.body.password !== req.body.passwordRepeat)) {
-        next(createError(400, 'The new password was not repeated correctly'))
       } else {
         const update = {}
 
@@ -235,18 +233,14 @@ export class UserController {
    */
   async fullUpdate (req, res, next) {
     try {
-      if (req.body.password !== req.body.passwordRepeat) {
-        next(createError(400, 'The new password was not repeated correctly.'))
-      } else {
-        req.authenticatedUser.username = req.body.username
-        req.authenticatedUser.givenName = req.body.givenName
-        req.authenticatedUser.familyName = req.body.familyName
-        req.authenticatedUser.email = req.body.email
-        req.authenticatedUser.password = req.body.password
+      req.authenticatedUser.username = req.body.username
+      req.authenticatedUser.givenName = req.body.givenName
+      req.authenticatedUser.familyName = req.body.familyName
+      req.authenticatedUser.email = req.body.email
+      req.authenticatedUser.password = req.body.password
 
-        await req.authenticatedUser.save()
-        res.status(204).end()
-      }
+      await req.authenticatedUser.save()
+      res.status(204).end()
     } catch (error) {
       let err = error
 
