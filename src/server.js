@@ -37,7 +37,7 @@ try {
       return res
         .status(err.status)
         .json({
-          status_code: err.status,
+          status: err.status,
           message: err.message
         })
     }

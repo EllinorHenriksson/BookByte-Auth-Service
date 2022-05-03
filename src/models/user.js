@@ -29,7 +29,7 @@ const schema = new mongoose.Schema({
     unique: true,
     lowercase: true,
     trim: true,
-    validate: [isEmail, 'Please provide a valid email address.']
+    validate: [isEmail, 'Email address is not valid.']
   },
   username: {
     type: String,
@@ -39,12 +39,12 @@ const schema = new mongoose.Schema({
     // - All other characters can be alphabets, numbers or an underscore so, [A-Za-z0-9_-].
     // - Since length constraint is 3-256 and we had already fixed the first character, so we give {2, 255}.
     // - We use ^ and $ to specify the beginning and end of matching.
-    match: [/^[A-Za-z][A-Za-z0-9_-]{2,255}$/, 'Please provide a valid username.']
+    match: [/^[A-Za-z][A-Za-z0-9_-]{2,255}$/, 'Username must be longer/shorter than 3/256 characters, only contain alphabets, numbers or underscores and start with an alphabeth).']
   },
   password: {
     type: String,
-    minLength: [10, 'The password must be of minimum length 10 characters.'],
-    maxLength: [256, 'The password must be of maximum length 256 characters.'],
+    minLength: [10, 'Password must be at least 10 characters long.'],
+    maxLength: [256, 'Password must not be longer than 256 characters.'],
     required: [true, 'Password is required.']
   }
 }, {
