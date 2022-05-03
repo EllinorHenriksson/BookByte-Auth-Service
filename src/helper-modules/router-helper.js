@@ -1,5 +1,6 @@
 import createError from 'http-errors'
 import jwt from 'jsonwebtoken'
+import { RefreshToken } from '../models/refreshToken.js'
 import { User } from '../models/user.js'
 
 /**
@@ -17,6 +18,28 @@ export async function loadRequestedUser (req, res, next, id) {
     next()
   } catch (error) {
     next(createError(404, 'The requested resource was not found'))
+  }
+}
+
+/**
+ * Authorizes anonymous users so they can register or authenticate themselves.
+ *
+ * @param {object} req - Express request object.
+ * @param {object} res - Express response object.
+ * @param {Function} next - Express next middleware function.
+ */
+export async function authorizeAnonymousUser (req, res, next) {
+  try {
+    const token = req.cookies.refreshToken
+    if (token) {
+      const refreshToken = await RefreshToken.findOne({ token }).populate('user')
+      if (refreshToken && refreshToken.isActive) {
+        throw createError(404)
+      }
+    }
+    next()
+  } catch (error) {
+    next(error)
   }
 }
 

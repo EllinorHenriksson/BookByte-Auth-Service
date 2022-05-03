@@ -17,9 +17,15 @@ const controller = new UserController()
 router.param('id', (req, res, next, id) => helper.loadRequestedUser(req, res, next, id))
 
 // --- Routes ---
-router.post('/register', (req, res, next) => controller.register(req, res, next))
+router.post('/register',
+  helper.authorizeAnonymousUser,
+  (req, res, next) => controller.register(req, res, next)
+)
 
-router.post('/login', (req, res, next) => controller.login(req, res, next))
+router.post('/login',
+  helper.authorizeAnonymousUser,
+  (req, res, next) => controller.login(req, res, next)
+)
 
 router.get('/refresh', (req, res, next) => controller.refresh(req, res, next))
 
