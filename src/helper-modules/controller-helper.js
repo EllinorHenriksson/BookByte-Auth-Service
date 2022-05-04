@@ -47,13 +47,13 @@ export function createRefreshToken (user, ipAddress) {
 export async function getRefreshToken (token) {
   // Check if cookie with refresh token is provided.
   if (!token) {
-    throw createError(400, 'Refresh token not provided')
+    throw createError(401, 'Refresh token invalid or not provided')
   }
 
   // Retreive and check refresh token.
   const refreshToken = await RefreshToken.findOne({ token }).populate('user')
   if (!refreshToken || !refreshToken.isActive) {
-    throw createError(401, 'Invalid refresh token')
+    throw createError(401, 'Refresh token invalid or not provided')
   }
   return refreshToken
 }

@@ -139,7 +139,7 @@ export class UserController {
       const refreshToken = await helper.getRefreshToken(req.cookies.refreshToken)
 
       if (refreshToken.user.id !== req.authenticatedUser.id) {
-        throw createError(401, 'Invalid refresh token')
+        return next(createError(401, 'Refresh token invalid or not provided'))
       }
 
       // Revoke token and save it.
