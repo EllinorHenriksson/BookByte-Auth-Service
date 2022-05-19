@@ -76,7 +76,7 @@ export class UserController {
       res
         .json({
           jwt: jwtToken,
-          user_data: user
+          user
         })
     } catch (error) {
       // Authentication failed.
@@ -119,7 +119,7 @@ export class UserController {
       res
         .json({
           jwt: jwtToken,
-          user_data: user
+          user
         })
     } catch (error) {
       next(error)

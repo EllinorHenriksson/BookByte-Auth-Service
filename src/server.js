@@ -11,6 +11,7 @@ import helmet from 'helmet'
 import logger from 'morgan'
 import { router } from './routes/router.js'
 import { connectDB } from './config/mongoose.js'
+// import cors from 'cors'
 
 try {
   await connectDB()
@@ -18,6 +19,19 @@ try {
   const app = express()
 
   app.use(helmet())
+
+  /*
+  if (app.settings.env === 'development') {
+    app.use(cors())
+  }
+  */
+
+  app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+    res.setHeader('Access-Control-Allow-Credentials', true)
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type')
+    next()
+  })
 
   app.use(logger('dev'))
 
