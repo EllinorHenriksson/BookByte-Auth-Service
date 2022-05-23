@@ -32,6 +32,10 @@ try {
 
   app.use(cookieParser())
 
+  if (app.get('env') === 'production') {
+    app.set('trust proxy', 1)
+  }
+
   app.use('/', router)
 
   app.use(function (err, req, res, next) {
