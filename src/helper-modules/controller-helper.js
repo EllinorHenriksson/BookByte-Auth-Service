@@ -68,7 +68,7 @@ export function setTokenCookie (res, token) {
   const cookieOptions = {
     httpOnly: true,
     expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days.
-    sameSite: 'strict'
+    sameSite: 'none' // I know that it is very unsafe to set sameSite to none, but since the client application is deployed with Netlify and doesn't run on the same server as Auth Service I had to do it. I've discussed the matter with Johan who gave me permission to do it.
   }
 
   res.cookie('refreshToken', token, cookieOptions)
