@@ -20,7 +20,14 @@ try {
   app.use(helmet())
 
   app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin)
+    let origin
+    if (app.get('env') === 'production') {
+      origin = 'https://playful-sunflower-0b2d9c.netlify.app'
+    } else {
+      origin = 'http://localhost:3000'
+    }
+
+    res.setHeader('Access-Control-Allow-Origin', origin)
     res.setHeader('Access-Control-Allow-Credentials', true)
     res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type')
     next()
