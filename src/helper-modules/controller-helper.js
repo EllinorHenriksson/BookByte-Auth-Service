@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken'
 import createError from 'http-errors'
 import crypto from 'crypto'
 import { RefreshToken } from '../models/refreshToken.js'
-import { appendFile } from 'fs'
 
 /**
  * Creates and returns a JWT.
