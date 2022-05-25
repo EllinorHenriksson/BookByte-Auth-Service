@@ -63,11 +63,18 @@ export async function getRefreshToken (token) {
  *
  * @param {object} res - The response object.
  * @param {string} token - The refresh token.
+ * @param {boolean} expired - True if the cookie should expire.
  */
-export function setTokenCookie (res, token) {
+export function setTokenCookie (res, token, expired = false) {
+  let expires
+  if (expired) {
+    expires = new Date(Date.now()) // Cookie will expire immediately.
+  } else {
+    expires = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // Cookie will expire in 7 days.
+  }
   const cookieOptions = {
     httpOnly: true,
-    expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // Expires in 7 days.
+    expires,
     sameSite: 'strict'
   }
 

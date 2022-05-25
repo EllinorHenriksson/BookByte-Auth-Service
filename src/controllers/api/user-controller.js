@@ -147,6 +147,9 @@ export class UserController {
       refreshToken.revokedByIp = req.ip
       await refreshToken.save()
 
+      // Set refresh token cookie that will expire immediately.
+      helper.setTokenCookie(res, '', true)
+
       res.json({ message: 'Refresh token revoked' })
     } catch (error) {
       next(error)
