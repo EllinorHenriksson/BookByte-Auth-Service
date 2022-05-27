@@ -264,8 +264,14 @@ export class UserController {
    */
   async delete (req, res, next) {
     try {
+      // Remove refresh tokens.
       await RefreshToken.deleteMany({ user: req.authenticatedUser._id })
+
+      // Remove user.
       await req.authenticatedUser.remove()
+
+      // Set refresh token cookie that will expire immediately.
+      helper.setTokenCookie(res, '', true)
       res.status(204).end()
     } catch (error) {
       next(error)
