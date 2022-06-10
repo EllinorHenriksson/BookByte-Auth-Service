@@ -198,8 +198,9 @@ export class UserController {
           await req.authenticatedUser.updateOne(update, { runValidators: true })
         }
 
-        if (req.body.password) {
-          req.authenticatedUser.password = req.body.password
+        if (req.body.newPassword) {
+          await User.checkPassword(req.authenticatedUser, req.body.oldPassword)
+          req.authenticatedUser.password = req.body.newPassword
           await req.authenticatedUser.save()
         }
         res.status(204).end()
@@ -234,7 +235,9 @@ export class UserController {
       req.authenticatedUser.givenName = req.body.givenName
       req.authenticatedUser.familyName = req.body.familyName
       req.authenticatedUser.email = req.body.email
-      req.authenticatedUser.password = req.body.password
+
+      await User.checkPassword(req.authenticatedUser, req.body.oldPassword)
+      req.authenticatedUser.password = req.body.newPassword
 
       await req.authenticatedUser.save()
       res.status(204).end()

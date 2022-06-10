@@ -8,6 +8,7 @@
 import bcrypt from 'bcrypt'
 import mongoose from 'mongoose'
 import validator from 'validator'
+import createError from 'http-errors'
 
 const { isEmail } = validator
 
@@ -93,6 +94,19 @@ schema.statics.authenticate = async function (username, password) {
 
   // User found and password correct, return the user.
   return user
+}
+
+/**
+ * Checks if password is correct for user.
+ *
+ * @param {User} user - The user object.
+ * @param {string} password - ...
+ */
+schema.statics.checkPassword = async function (user, password) {
+  // If no user found or password is wrong, throw an error.
+  if (!(await bcrypt.compare(password, user.password))) {
+    throw createError(401, 'Wrong password.')
+  }
 }
 
 // Create a model using the schema.
