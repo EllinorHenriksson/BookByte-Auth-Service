@@ -8,7 +8,8 @@
     "start": "node src/server.js",
     "dev": "nodemon --inspect -r dotenv/config src/server.js",
     "lint": "npx eslint ./src || exit 0",
-    "lint:fix": "npx eslint ./src --fix || exit 0"
+    "lint:fix": "npx eslint ./src --fix || exit 0",
+    "test": "mocha -r dotenv/config"
   },
   "repository": {
     "type": "git",
@@ -30,6 +31,8 @@
   "devDependencies": {
     "@lnu/eslint-config": "^1.1.4",
     "dotenv": "^14.2.0",
-    "nodemon": "^2.0.15"
+    "mocha": "^10.0.0",
+    "nodemon": "^2.0.15",
+    "supertest": "^6.2.3"
   }
 }

@@ -12,10 +12,12 @@ import logger from 'morgan'
 import { router } from './routes/router.js'
 import { connectDB } from './config/mongoose.js'
 
+export const app = express()
+
 try {
   await connectDB()
 
-  const app = express()
+  // const app = express()
 
   app.use(helmet())
 
