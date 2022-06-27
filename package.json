@@ -30,6 +30,8 @@
   },
   "devDependencies": {
     "@lnu/eslint-config": "^1.1.4",
+    "chai": "^4.3.6",
+    "chai-http": "^4.3.0",
     "dotenv": "^14.2.0",
     "mocha": "^10.0.0",
     "nodemon": "^2.0.15",

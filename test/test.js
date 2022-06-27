@@ -1,3 +1,4 @@
+/*
 import assert from 'assert'
 
 describe('Array', function () {
@@ -7,3 +8,4 @@ describe('Array', function () {
     })
   })
 })
+*/
