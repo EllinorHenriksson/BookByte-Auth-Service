@@ -236,6 +236,10 @@ export class UserController {
       req.authenticatedUser.familyName = req.body.familyName
       req.authenticatedUser.email = req.body.email
 
+      if (!req.body.oldPassword || !req.body.newPassword) {
+        return next(createError(400, 'Old password and/or new password not provided.'))
+      }
+
       await User.checkPassword(req.authenticatedUser, req.body.oldPassword)
       req.authenticatedUser.password = req.body.newPassword
 
