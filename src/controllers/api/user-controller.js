@@ -176,8 +176,10 @@ export class UserController {
    */
   async partialUpdate (req, res, next) {
     try {
-      if (!req.body.username && !req.body.givenName && !req.body.familyName && !req.body.email && !req.body.password) {
+      if (!req.body.username && !req.body.givenName && !req.body.familyName && !req.body.email && (!req.body.oldPassword && !req.body.newPassword)) {
         next(createError(400, 'None of the requested data was provided'))
+      } else if ((req.body.newPassword && !req.body.oldPassword) || (req.body.oldPassword && !req.body.newPassword)) {
+        next(createError(400, 'Only the old or new password was provided'))
       } else {
         const update = {}
 
